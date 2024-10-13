@@ -625,7 +625,7 @@ properties:
                     - to:
                         - podSelector:
                             matchLabels:
-                              app: my-k8s-local-service
+                              app.kubernetes.io/name: my-k8s-local-service
                       ports:
                         - protocol: TCP
                           port: 5978
@@ -1104,6 +1104,10 @@ properties:
             description: |
               Object to configure the ports the hub service will be deployed on.
             properties:
+              appProtocol:
+                type: [string, "null"]
+                description: |
+                  The application protocol to utilize with the Service port. This may be required when an external application attempts to make calls to the hub service with a protocol the hub does not support.
               nodePort:
                 type: [integer, "null"]
                 minimum: 0
@@ -2373,6 +2377,14 @@ properties:
 
                   There is of a default StorageClass available in k8s clusters
                   for use if this is unspecified.
+              subPath: &subPath-spec
+                type: [string, "null"]
+                description: |
+                  Configures the `subPath` field of a
+                  `KubeSpawner.volume_mounts` entry added by the Helm chart.
+
+                  Path within the volume from which the container's volume
+                  should be mounted. Defaults to "" (volume's root).
               volumeNameTemplate:
                 type: [string, "null"]
                 description: |
@@ -2402,14 +2414,7 @@ properties:
                 description: |
                   Configures `KubeSpawner.pvc_claim_name` to reference
                   pre-existing storage.
-              subPath:
-                type: [string, "null"]
-                description: |
-                  Configures the `subPath` field of a
-                  `KubeSpawner.volume_mounts` entry added by the Helm chart.
-
-                  Path within the volume from which the container's volume
-                  should be mounted.
+              subPath: *subPath-spec
           type:
             enum: [dynamic, static, none]
             description: |
@@ -2756,6 +2761,13 @@ properties:
           See [the Kubernetes
           documentation](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls)
           for more details about annotations.
+      extraPaths:
+        type: array
+        description: |
+          A list of custom paths to be added to the ingress configuration.
+
+          See [the Kubernetes documentation](https://kubernetes.io/docs/concepts/services-networking/ingress/#path-types)
+          for more details about paths.
 
   prePuller:
     type: object
